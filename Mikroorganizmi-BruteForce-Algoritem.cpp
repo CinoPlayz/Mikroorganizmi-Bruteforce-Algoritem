@@ -4,10 +4,17 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 struct MatrixItem {
 	bool isOrganism = false;
 	int idOfOrganism = -1;
+};
+
+struct Organism {
+	int id = -1;
+	int rotation = 0;
+	std::vector<std::vector<bool>> matrix;
 };
 
 int main(int argc, char* argv[])
@@ -63,6 +70,7 @@ int main(int argc, char* argv[])
 
 	//Label organisms with ids, checking top and left side of each cell
 	int countOrganismsForId = 1;
+    std::set<int> setOfIds = std::set<int>();
     for(int i = 0; i < X; i++) {
         for(int j = 0; j < Y; j++) {
             if (matrix[i][j].isOrganism) {
@@ -70,12 +78,13 @@ int main(int argc, char* argv[])
                 int topIndex = i - 1;
 
                 if (topIndex >= 0 && matrix[topIndex][j].isOrganism == true) {
-					matrix[i][j].idOfOrganism = matrix[topIndex][j].idOfOrganism;
+					matrix[i][j].idOfOrganism = matrix[topIndex][j].idOfOrganism;					
 
 					//Check left side if same id as top, otherwise change 
                     if (leftIndex >= 0) {
                         if (matrix[i][leftIndex].isOrganism == true && matrix[i][leftIndex].idOfOrganism != matrix[i][j].idOfOrganism) {
 							int k = leftIndex;
+                            setOfIds.erase(matrix[i][k].idOfOrganism);
                             while (true) {
 								matrix[i][k].idOfOrganism = matrix[i][j].idOfOrganism;
 								k--;
@@ -91,6 +100,7 @@ int main(int argc, char* argv[])
                 }
                 else {
 					matrix[i][j].idOfOrganism = countOrganismsForId;
+                    setOfIds.insert(countOrganismsForId);
                     countOrganismsForId++;
                 }
             }			
@@ -112,4 +122,42 @@ int main(int argc, char* argv[])
 	}
 
 	std::cout << "Stevilo organizmov: " << countOrganisms << std::endl;
+
+	//Isolate organisms in the matrix
+	std::vector<Organism> organisms = std::vector<Organism>();
+    for (int searchId : setOfIds) {
+        Organism organism = Organism();
+        std::vector<std::vector<bool>> organismMatrix(X, std::vector<bool>(Y, false));
+        for (int i = 0; i < X; i++) {
+            for (int j = 0; j < Y; j++) {
+                if (matrix[i][j].isOrganism && matrix[i][j].idOfOrganism == searchId) {
+                    organismMatrix[i][j] = true;
+                }
+            }
+        }
+
+        organism.id = searchId;
+        organism.matrix = organismMatrix;
+        organism.rotation = 0;
+        organisms.push_back(organism);
+    }
+
+
+	//Print organisms
+    for (int i = 0; i < organisms.size(); i++) {
+		std::cout << "Organism id: " << organisms[i].id << std::endl;
+        for (int j = 0; j < X; j++) {
+            for (int k = 0; k < Y; k++) {
+                if (organisms[i].matrix[j][k]) {
+                    std::cout << "1";
+                }
+                else {
+                    std::cout << "0";
+                }
+            }
+            std::cout << std::endl;
+        }
+		std::cout << std::endl;
+    }
+   
 }
