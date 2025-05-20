@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <set>
+#include <chrono>
 
 struct MatrixItem {
 	bool isOrganism = false;
@@ -72,6 +73,9 @@ int main(int argc, char* argv[])
     // Close the file
     ReadFile.close();
 
+    // Start timer
+    auto start = std::chrono::high_resolution_clock::now();
+
 	//Label organisms with ids, checking top and left side of each cell
 	int countOrganismsForId = 1;
     std::set<int> setOfIds = std::set<int>();
@@ -91,10 +95,31 @@ int main(int argc, char* argv[])
                             setOfIds.erase(matrix[i][k].idOfOrganism);
                             while (true) {
 								matrix[i][k].idOfOrganism = matrix[i][j].idOfOrganism;
+
+                                //Check if top is filled then do that for left and right on top
+                                int topOfK = i - 1;                                
+                                while (topOfK >= 0 && matrix[topOfK][k].isOrganism) {
+                                    int leftK = k;
+                                    int rightK = k + 1;
+                                    while (leftK >= 0 && matrix[topOfK][leftK].isOrganism && matrix[topOfK][leftK].idOfOrganism != matrix[i][j].idOfOrganism) {
+                                        setOfIds.erase(matrix[topOfK][leftK].idOfOrganism);
+                                        matrix[topOfK][leftK].idOfOrganism = matrix[i][j].idOfOrganism;
+                                        leftK--;
+                                    }
+
+                                    while(rightK < Y && matrix[topOfK][rightK].isOrganism && matrix[topOfK][rightK].idOfOrganism != matrix[i][j].idOfOrganism) {
+                                        setOfIds.erase(matrix[topOfK][rightK].idOfOrganism);
+                                        matrix[topOfK][rightK].idOfOrganism = matrix[i][j].idOfOrganism;
+                                        rightK++;
+									}
+									//std::cout << "Top of k: " << topOfK << std::endl;
+                                    topOfK--;
+                                }
+
 								k--;
                                 if (k < 0 || matrix[i][k].isOrganism == false) {
                                     break;
-                                }
+                                }                                
                             }
                         }
                     }
@@ -126,6 +151,10 @@ int main(int argc, char* argv[])
 	}
 
 	std::cout << "Stevilo organizmov: " << countOrganisms << std::endl;
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    auto duration_s = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+    std::cout << "Elapsed time: " << duration_ms << " ms (" << duration_s << " s)" << std::endl;
 
 	//Isolate organisms in the matrix
 	std::vector<Organism> organisms = std::vector<Organism>();
@@ -178,13 +207,19 @@ int main(int argc, char* argv[])
         organisms.push_back(organism);
     }
 
+    std::cout << "Done isolating" << std::endl;
+    end = std::chrono::high_resolution_clock::now();
+    duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    duration_s = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+    std::cout << "Elapsed time: " << duration_ms << " ms (" << duration_s << " s)" << std::endl;
+
 
 	//Print organisms
-    for (Organism organism : organisms) {
+    /*for (Organism organism : organisms) {
         std::cout << "Organism id: " << organism.id << std::endl;
 		printMatrix(organism.matrix);
         std::cout << std::endl;
-    }
+    }*/
 
 	/*std::cout << "Rotated organisms before:" << std::endl;
     printMatrix(organisms[0].matrix);
@@ -234,6 +269,10 @@ int main(int argc, char* argv[])
     }
 
 	std::cout << "Stevilo unikatnih organizmov: " << countUniqueOrganisms << std::endl;
+    end = std::chrono::high_resolution_clock::now();
+    duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    duration_s = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
+    std::cout << "Elapsed time: " << duration_ms << " ms (" << duration_s << " s)" << std::endl;
 
    
 }
