@@ -199,6 +199,8 @@ int main(int argc, char* argv[])
             }
         }
 
+		std::cout << "Done Organism id: " << searchId << std::endl;
+
 
         organism.id = searchId;
         organism.matrix = organismMatrix;
@@ -266,6 +268,8 @@ int main(int argc, char* argv[])
         if (!found) {
             countUniqueOrganisms++;
         }
+
+        std::cout << "Done Organism id: " << organism.id << std::endl;
     }
 
 	std::cout << "Stevilo unikatnih organizmov: " << countUniqueOrganisms << std::endl;
@@ -291,13 +295,6 @@ void printMatrix(std::vector<std::vector<bool>>& mat) {
     }
 }
 
-void flipHorizontal(std::vector<std::vector<int>>& mat) {
-    for (auto& row : mat)
-        std::reverse(row.begin(), row.end());
-}
-void flipVertical(std::vector<std::vector<int>>& mat) {
-    std::reverse(mat.begin(), mat.end());
-}
 void rotate90Clockwise(std::vector<std::vector<bool>>& mat) {
     int n = mat.size(), m = mat[0].size();
     std::vector<std::vector<bool>> res(m, std::vector<bool>(n));
