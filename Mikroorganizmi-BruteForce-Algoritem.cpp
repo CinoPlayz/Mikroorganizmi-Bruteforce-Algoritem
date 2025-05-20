@@ -14,8 +14,12 @@ struct MatrixItem {
 struct Organism {
 	int id = -1;
 	int rotation = 0;
+	int area = 0;
 	std::vector<std::vector<bool>> matrix;
 };
+
+void printMatrix(std::vector<std::vector<bool>>& mat);
+void rotate90Clockwise(std::vector<std::vector<bool>>& mat);
 
 int main(int argc, char* argv[])
 {
@@ -131,12 +135,13 @@ int main(int argc, char* argv[])
 		int rightMost = 0;
 		int topMost = X;
 		int bottomMost = 0;
+        int area = 0;
         std::vector<std::vector<bool>> organismMatrixFull(X, std::vector<bool>(Y, false));
         for (int i = 0; i < X; i++) {
             for (int j = 0; j < Y; j++) {
                 if (matrix[i][j].isOrganism && matrix[i][j].idOfOrganism == searchId) {
                     organismMatrixFull[i][j] = true;
-
+                    area++;
                     if (i < topMost) {
 						topMost = i;
                     }
@@ -169,6 +174,7 @@ int main(int argc, char* argv[])
         organism.id = searchId;
         organism.matrix = organismMatrix;
         organism.rotation = 0;
+		organism.area = area;
         organisms.push_back(organism);
     }
 
@@ -176,19 +182,88 @@ int main(int argc, char* argv[])
 	//Print organisms
     for (Organism organism : organisms) {
         std::cout << "Organism id: " << organism.id << std::endl;
-        for(int i = 0; i < organism.matrix.size(); i++) {
-            for(int j = 0; j < organism.matrix[i].size(); j++) {
-                if (organism.matrix[i][j]) {
-                    std::cout << "1";
-                }
-                else {
-                    std::cout << "0";
-                }
-            }
-            std::cout << std::endl;
-		}
+		printMatrix(organism.matrix);
         std::cout << std::endl;
     }
-    
+
+	/*std::cout << "Rotated organisms before:" << std::endl;
+    printMatrix(organisms[0].matrix);
+    std::cout << "Rotated organisms after:" << std::endl;
+    rotate90Clockwise(organisms[0].matrix);
+	printMatrix(organisms[0].matrix);*/
+
+	//Find unique organisms
+	int countUniqueOrganisms = 0;
+	std::set<int> matchingOrganismsId = std::set<int>();
+    for (Organism organism : organisms) {
+        bool found = false;
+		//Search if any have the same area
+        for (int i = 0; i < organisms.size(); i++) {
+			Organism organismComparing = organisms[i];
+
+            //If any have the same area, then rotate and compare
+            if (organismComparing.area == organism.area && organismComparing.id != organism.id) {
+
+				//Rotate the organismComparing matrix 4 times and compare with the original organism matrix
+                for (int j = 0; j < 4; j++) {
+                    if (!found && organismComparing.matrix == organism.matrix) {
+                        bool foundComparing = matchingOrganismsId.find(organismComparing.id) == matchingOrganismsId.end();
+						bool foundOriginal = matchingOrganismsId.find(organism.id) == matchingOrganismsId.end();
+                        if (foundComparing && foundOriginal) {
+                            matchingOrganismsId.insert(organismComparing.id);
+                            matchingOrganismsId.insert(organism.id);
+                            countUniqueOrganisms++;
+                        }
+                        else if(foundComparing) {
+                            matchingOrganismsId.insert(organismComparing.id);
+                        }
+                        else if(foundOriginal) {
+                            matchingOrganismsId.insert(organism.id);                            
+						}
+                        found = true;
+                    }
+
+                    rotate90Clockwise(organismComparing.matrix);                    				
+                }                
+            }            
+        }
+
+        if (!found) {
+            countUniqueOrganisms++;
+        }
+    }
+
+	std::cout << "Stevilo unikatnih organizmov: " << countUniqueOrganisms << std::endl;
+
    
+}
+
+void printMatrix(std::vector<std::vector<bool>>& mat) {
+    for (int i = 0; i < mat.size(); i++) {
+        for (int j = 0; j < mat[i].size(); j++) {
+            if (mat[i][j]) {
+                std::cout << "1";
+            }
+            else {
+                std::cout << "0";
+            }
+        }
+        std::cout << std::endl;
+    }
+}
+
+void flipHorizontal(std::vector<std::vector<int>>& mat) {
+    for (auto& row : mat)
+        std::reverse(row.begin(), row.end());
+}
+void flipVertical(std::vector<std::vector<int>>& mat) {
+    std::reverse(mat.begin(), mat.end());
+}
+void rotate90Clockwise(std::vector<std::vector<bool>>& mat) {
+    int n = mat.size(), m = mat[0].size();
+    std::vector<std::vector<bool>> res(m, std::vector<bool>(n));
+    for (int i = 0; i < n; ++i)
+        for (int j = 0; j < m; ++j)
+            res[j][n - 1 - i] = mat[i][j];
+    mat = std::move(res);
 }
