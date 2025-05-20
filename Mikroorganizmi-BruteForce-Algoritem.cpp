@@ -127,14 +127,44 @@ int main(int argc, char* argv[])
 	std::vector<Organism> organisms = std::vector<Organism>();
     for (int searchId : setOfIds) {
         Organism organism = Organism();
-        std::vector<std::vector<bool>> organismMatrix(X, std::vector<bool>(Y, false));
+        int leftMost = Y;
+		int rightMost = 0;
+		int topMost = X;
+		int bottomMost = 0;
+        std::vector<std::vector<bool>> organismMatrixFull(X, std::vector<bool>(Y, false));
         for (int i = 0; i < X; i++) {
             for (int j = 0; j < Y; j++) {
                 if (matrix[i][j].isOrganism && matrix[i][j].idOfOrganism == searchId) {
-                    organismMatrix[i][j] = true;
+                    organismMatrixFull[i][j] = true;
+
+                    if (i < topMost) {
+						topMost = i;
+                    }
+
+                    if (i > bottomMost) {
+						bottomMost = i;
+                    }
+
+                    if (j < leftMost) {
+						leftMost = j;
+                    }
+
+                    if (j > rightMost) {
+                        rightMost = j;
+                    }
                 }
             }
         }
+
+		int Xsmaller = bottomMost - topMost + 1;
+		int Ysmaller = rightMost - leftMost + 1;
+        std::vector<std::vector<bool>> organismMatrix(Xsmaller, std::vector<bool>(Ysmaller, false));
+        for (int i = 0; i < Xsmaller; i++) {
+            for (int j = 0; j < Ysmaller; j++) {
+				organismMatrix[i][j] = organismMatrixFull[topMost + i][leftMost + j];
+            }
+        }
+
 
         organism.id = searchId;
         organism.matrix = organismMatrix;
@@ -144,11 +174,11 @@ int main(int argc, char* argv[])
 
 
 	//Print organisms
-    for (int i = 0; i < organisms.size(); i++) {
-		std::cout << "Organism id: " << organisms[i].id << std::endl;
-        for (int j = 0; j < X; j++) {
-            for (int k = 0; k < Y; k++) {
-                if (organisms[i].matrix[j][k]) {
+    for (Organism organism : organisms) {
+        std::cout << "Organism id: " << organism.id << std::endl;
+        for(int i = 0; i < organism.matrix.size(); i++) {
+            for(int j = 0; j < organism.matrix[i].size(); j++) {
+                if (organism.matrix[i][j]) {
                     std::cout << "1";
                 }
                 else {
@@ -156,8 +186,9 @@ int main(int argc, char* argv[])
                 }
             }
             std::cout << std::endl;
-        }
-		std::cout << std::endl;
+		}
+        std::cout << std::endl;
     }
+    
    
 }
