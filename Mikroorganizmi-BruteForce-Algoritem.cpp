@@ -73,9 +73,6 @@ int main(int argc, char* argv[])
     // Close the file
     ReadFile.close();
 
-    // Start timer
-    auto start = std::chrono::high_resolution_clock::now();
-
 	//Label organisms with ids, checking top and left side of each cell
 	int countOrganismsForId = 1;
     std::set<int> setOfIds = std::set<int>();
@@ -150,12 +147,6 @@ int main(int argc, char* argv[])
         }
 	}
 
-	std::cout << "Stevilo organizmov: " << countOrganisms << std::endl;
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    auto duration_s = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-    std::cout << "Elapsed time: " << duration_ms << " ms (" << duration_s << " s)" << std::endl;
-
 	//Isolate organisms in the matrix
 	std::vector<Organism> organisms = std::vector<Organism>();
     for (int searchId : setOfIds) {
@@ -199,22 +190,12 @@ int main(int argc, char* argv[])
             }
         }
 
-		std::cout << "Done Organism id: " << searchId << std::endl;
-
-
         organism.id = searchId;
         organism.matrix = organismMatrix;
         organism.rotation = 0;
 		organism.area = area;
         organisms.push_back(organism);
     }
-
-    std::cout << "Done isolating" << std::endl;
-    end = std::chrono::high_resolution_clock::now();
-    duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    duration_s = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-    std::cout << "Elapsed time: " << duration_ms << " ms (" << duration_s << " s)" << std::endl;
-
 
 	//Print organisms
     /*for (Organism organism : organisms) {
@@ -223,11 +204,6 @@ int main(int argc, char* argv[])
         std::cout << std::endl;
     }*/
 
-	/*std::cout << "Rotated organisms before:" << std::endl;
-    printMatrix(organisms[0].matrix);
-    std::cout << "Rotated organisms after:" << std::endl;
-    rotate90Clockwise(organisms[0].matrix);
-	printMatrix(organisms[0].matrix);*/
 
 	//Find unique organisms
 	int countUniqueOrganisms = 0;
@@ -268,17 +244,9 @@ int main(int argc, char* argv[])
         if (!found) {
             countUniqueOrganisms++;
         }
-
-        std::cout << "Done Organism id: " << organism.id << std::endl;
     }
 
-	std::cout << "Stevilo unikatnih organizmov: " << countUniqueOrganisms << std::endl;
-    end = std::chrono::high_resolution_clock::now();
-    duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    duration_s = std::chrono::duration_cast<std::chrono::duration<double>>(end - start).count();
-    std::cout << "Elapsed time: " << duration_ms << " ms (" << duration_s << " s)" << std::endl;
-
-   
+	std::cout << countUniqueOrganisms << std::endl;   
 }
 
 void printMatrix(std::vector<std::vector<bool>>& mat) {
